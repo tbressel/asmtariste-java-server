@@ -1,46 +1,60 @@
-// Levée d'exeption en cas d'erreur entrée / sortie : classe IOExeption
 import java.io.IOException;
-
-// Permet d'écrire des données de textes dans un flux de sortie comme JSON : classe PrintWriter
 import java.io.PrintWriter;
-
-// Importation du point d'entrée du serveur : classe ServerSocket
 import java.net.ServerSocket;
-
-// Importation non obligatoir car Socket fait parti du meme package que ServerSocket
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
 
-
-
-/**
- *  Entering into the server
- */
 public class MainServer {
 
     public static void main(String[] args) {
 
-        // local variable as constante  : number of port adress where server is listened to
+         // a try / catch database connexion
+         try {
+            Connection connection = MySQLConnexion.getConnection();
+
+            // Testing if it works ----> !!!!!! to be removed later !!!!!  <-----
+            String sql = "SELECT * FROM users";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+
+            while (resultSet.next()) {
+
+                // request results
+                System.out.println("ID: " + resultSet.getInt("id") + ", Name: " + resultSet.getString("nickname"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         final int PORT = 8080;
 
-
-        // try and catch condition
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Serveur démarré sur le port " + PORT);
+            System.out.println("Server started on port: " + PORT);
 
             while (true) {
                 try (Socket clientSocket = serverSocket.accept()) {
-                    System.out.println("Nouvelle connexion entrante : " + clientSocket.getInetAddress());
+                    System.out.println("New entering connexion : " + clientSocket.getInetAddress());
 
-                    var out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    // Database connexion
+                    try (Connection connection = MySQLConnexion.getConnection()) {
 
-                    // En-têtes de la réponse HTTP
-                    out.println("HTTP/1.1 200 OK");
-                    out.println("Content-Type: application/json"); // Indique que le contenu est du JSON
-                    out.println();
-
-                    // Corps de la réponse JSON
-                    String jsonResponse = "{ \"message\": \"Hello, world!\" }";
-                    out.println(jsonResponse);
+                        // Testing if it works ----> !!!!!! to be removed later !!!!!  <-----
+                        Statement statement = connection.createStatement();
+                        ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
+                        
+                        // create a json 
+                        String jsonResponse = generateResponseFromResultSet(resultSet);
+                        
+                        // send to client
+                        PrintWriter response = new PrintWriter(clientSocket.getOutputStream(), true);
+                        response.println(jsonResponse);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 } catch (IOException error) {
                     error.printStackTrace();
                 }
@@ -48,5 +62,10 @@ public class MainServer {
         } catch (IOException error) {
             error.printStackTrace();
         }
+    }
+    
+    private static String generateResponseFromResultSet(ResultSet resultSet) throws SQLException {
+        /// to be completed
+        return ""; 
     }
 }
