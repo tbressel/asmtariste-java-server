@@ -86,8 +86,6 @@ INSERT INTO to_use (id_articles, id_contents) VALUES
 (6, 3);
 
 
-
-
 INSERT INTO disk_units (label, letter, icon) VALUES
 ('système', 'A:', 'atari-unitdisk.webp'),
 ('données', 'B:', 'atari-unitdisk.webp'),

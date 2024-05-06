@@ -3,69 +3,44 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MainServer {
 
+    private static final Logger LOGGER = Logger.getLogger(MainServer.class.getName());
+
     public static void main(String[] args) {
-
-         // a try / catch database connexion
-         try {
-            Connection connection = MySQLConnexion.getConnection();
-
-            // Testing if it works ----> !!!!!! to be removed later !!!!!  <-----
-            String sql = "SELECT * FROM users";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery();
-
-
-            while (resultSet.next()) {
-
-                // request results
-                System.out.println("ID: " + resultSet.getInt("id") + ", Name: " + resultSet.getString("nickname"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         final int PORT = 8080;
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started on port: " + PORT);
+            LOGGER.info("Server started on port: " + PORT);
+
+            // Connexion à la base de données
+            try (Connection connection = MySQLConnexion.getConnection()) {
+                LOGGER.info("Yeah !!! Successfully connected to the database");
+            } catch (SQLException e) {
+                LOGGER.log(Level.SEVERE, "Error connecting to the database", e);
+            }
 
             while (true) {
                 try (Socket clientSocket = serverSocket.accept()) {
-                    System.out.println("New entering connexion : " + clientSocket.getInetAddress());
+                    LOGGER.info("New connection from: " + clientSocket.getInetAddress());
 
-                    // Database connexion
-                    try (Connection connection = MySQLConnexion.getConnection()) {
-
-                        // Testing if it works ----> !!!!!! to be removed later !!!!!  <-----
-                        Statement statement = connection.createStatement();
-                        ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
-                        
-                        // create a json 
-                        String jsonResponse = generateResponseFromResultSet(resultSet);
-                        
-                        // send to client
-                        PrintWriter response = new PrintWriter(clientSocket.getOutputStream(), true);
-                        response.println(jsonResponse);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    // Code pour traiter la connexion client
+                    // Par exemple, envoyer une réponse au client
+                    try (PrintWriter response = new PrintWriter(clientSocket.getOutputStream(), true)) {
+                        response.println("Welcome to the server!");
+                    } catch (IOException e) {
+                        LOGGER.log(Level.SEVERE, "Error sending response to client", e);
                     }
-                } catch (IOException error) {
-                    error.printStackTrace();
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error accepting client connection", e);
                 }
             }
-        } catch (IOException error) {
-            error.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error starting server", e);
         }
-    }
-    
-    private static String generateResponseFromResultSet(ResultSet resultSet) throws SQLException {
-        /// to be completed
-        return ""; 
     }
 }

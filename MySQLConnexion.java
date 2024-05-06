@@ -5,7 +5,8 @@ import java.sql.SQLException;
 public class MySQLConnexion {
     public static Connection getConnection() throws SQLException {
         // Loading JDBC MySQL driver
-        // compiled with : 
+        // compiled with :
+        // javac *.java 
         // java -cp .:lib/mysql-connector-java-8.4.0.jar MainServer
         //
         // Must check why .vscode doesn't work ??

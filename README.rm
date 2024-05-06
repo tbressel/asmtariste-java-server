@@ -1,0 +1,4 @@
+Compiled with :
+
+        javac *.java   
+        java -cp .:lib/mysql-connector-java-8.4.0.jar MainServer  
