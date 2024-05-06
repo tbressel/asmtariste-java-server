@@ -85,3 +85,19 @@ INSERT INTO to_use (id_articles, id_contents) VALUES
 (5, 2),
 (6, 3);
 
+
+
+
+INSERT INTO disk_units (label, letter, icon) VALUES
+('système', 'A:', 'atari-unitdisk.webp'),
+('données', 'B:', 'atari-unitdisk.webp'),
+('sauvegarde', 'C:', 'atari-unitdisk.webp'),
+('temporaire', 'D:', 'atari-unitdisk.webp');
+
+
+INSERT INTO menu (name, link) VALUES
+('Accueil', '/accueil'),
+('Coding', '/coding'),
+('Gaming', '/gaming'),
+('Musique', '/music'),
+('Gfx', '/gfx');
